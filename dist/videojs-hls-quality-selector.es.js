@@ -484,6 +484,10 @@ var HlsQualitySelectorPlugin = function () {
       }));
     }
 
+    if (!this.config.enableAutoQuality && levelItems.length > 0) {
+      this.setQuality(levelItems[levelItems.length - 1].item.value);
+    }
+
     if (this._qualityButton) {
       this._qualityButton.createItems = function () {
         return levelItems;
