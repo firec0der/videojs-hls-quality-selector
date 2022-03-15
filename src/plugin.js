@@ -138,11 +138,13 @@ class HlsQualitySelectorPlugin {
       return 0;
     });
 
-    levelItems.push(this.getQualityMenuItem.call(this, {
-      label: player.localize('Auto'),
-      value: 'auto',
-      selected: true
-    }));
+    if (this.options.enableAutoQuality) {
+      levelItems.push(this.getQualityMenuItem.call(this, {
+        label: player.localize('Auto'),
+        value: 'auto',
+        selected: true
+      }));
+    }
 
     if (this._qualityButton) {
       this._qualityButton.createItems = function() {
