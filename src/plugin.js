@@ -138,7 +138,7 @@ class HlsQualitySelectorPlugin {
       return 0;
     });
 
-    if (this.options.enableAutoQuality) {
+    if (this.config.enableAutoQuality) {
       levelItems.push(this.getQualityMenuItem.call(this, {
         label: player.localize('Auto'),
         value: 'auto',
