@@ -136,7 +136,7 @@ class HlsQualitySelectorPlugin {
       return 0;
     });
 
-    if (!this.config.enableAutoQuality && items.length > 0) {
+    if (!this.config.enableAutoQuality && menuItemConfigs.length > 0) {
       menuItemConfigs[menuItemConfigs.length - 1].selected = true;
     }
 
