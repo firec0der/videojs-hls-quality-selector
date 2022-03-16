@@ -454,10 +454,10 @@ var HlsQualitySelectorPlugin = function () {
     }
 
     menuItemConfigs.sort(function (current, next) {
-      if (current.item.value < next.item.value) {
+      if (current.value < next.value) {
         return -1;
       }
-      if (current.item.value > next.item.value) {
+      if (current.value > next.value) {
         return 1;
       }
       return 0;
