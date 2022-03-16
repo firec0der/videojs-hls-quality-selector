@@ -103,32 +103,30 @@ class HlsQualitySelectorPlugin {
    * Executed when a quality level is added from HLS playlist.
    */
   onAddQualityLevel() {
-
     const player = this.player;
     const qualityList = player.qualityLevels();
     const levels = qualityList.levels_ || [];
-    const levelItems = [];
+
+    const menuItemConfigs = [];
 
     for (let i = 0; i < levels.length; ++i) {
       if (!levels[i].height) {
         continue;
       }
-      if (!levelItems.filter(_existingItem => {
-        return _existingItem.item && _existingItem.item.value === levels[i].height;
-      }).length) {
-        const levelItem = this.getQualityMenuItem.call(this, {
+
+      const alreadyAdded = menuItemConfigs.find(menuItemConfig =>
+        menuItemConfig.item && menuItemConfig.item.value === levels[i].height
+      );
+
+      if (!alreadyAdded) {
+        menuItemConfigs.push({
           label: levels[i].height + 'p',
           value: levels[i].height
         });
-
-        levelItems.push(levelItem);
       }
     }
 
-    levelItems.sort((current, next) => {
-      if ((typeof current !== 'object') || (typeof next !== 'object')) {
-        return -1;
-      }
+    menuItemConfigs.sort((current, next) => {
       if (current.item.value < next.item.value) {
         return -1;
       }
@@ -138,21 +136,27 @@ class HlsQualitySelectorPlugin {
       return 0;
     });
 
+    if (!this.config.enableAutoQuality && items.length > 0) {
+      menuItemConfigs[menuItemConfigs.length - 1].selected = true;
+    }
+
+    const menuItems = [];
+
+    for (let i = 0; i < menuItemConfigs.length; ++i) {
+      menuItems.push(this.getQualityMenuItem.call(this, menuItemConfigs[i]));
+    }
+
     if (this.config.enableAutoQuality) {
-      levelItems.push(this.getQualityMenuItem.call(this, {
+      menuItems.push(this.getQualityMenuItem.call(this, {
         label: player.localize('Auto'),
         value: 'auto',
         selected: true
       }));
     }
 
-    if (!this.config.enableAutoQuality && levelItems.length > 0) {
-      this.setQuality(levelItems[levelItems.length - 1].item.value);
-    }
-
     if (this._qualityButton) {
       this._qualityButton.createItems = function() {
-        return levelItems;
+        return menuItems;
       };
       this._qualityButton.update();
     }

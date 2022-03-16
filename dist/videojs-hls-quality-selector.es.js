@@ -2,16 +2,6 @@ import videojs from 'video.js';
 
 var version = "1.1.4";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-
-
-
-
-
 var asyncGenerator = function () {
   function AwaitValue(value) {
     this.value = value;
@@ -434,26 +424,26 @@ var HlsQualitySelectorPlugin = function () {
 
 
   HlsQualitySelectorPlugin.prototype.onAddQualityLevel = function onAddQualityLevel() {
-    var _this = this;
-
     var player = this.player;
     var qualityList = player.qualityLevels();
     var levels = qualityList.levels_ || [];
-    var levelItems = [];
+
+    var menuItemConfigs = [];
 
     var _loop = function _loop(i) {
       if (!levels[i].height) {
         return 'continue';
       }
-      if (!levelItems.filter(function (_existingItem) {
-        return _existingItem.item && _existingItem.item.value === levels[i].height;
-      }).length) {
-        var levelItem = _this.getQualityMenuItem.call(_this, {
+
+      var alreadyAdded = menuItemConfigs.find(function (menuItemConfig) {
+        return menuItemConfig.item && menuItemConfig.item.value === levels[i].height;
+      });
+
+      if (!alreadyAdded) {
+        menuItemConfigs.push({
           label: levels[i].height + 'p',
           value: levels[i].height
         });
-
-        levelItems.push(levelItem);
       }
     };
 
@@ -463,10 +453,7 @@ var HlsQualitySelectorPlugin = function () {
       if (_ret === 'continue') continue;
     }
 
-    levelItems.sort(function (current, next) {
-      if ((typeof current === 'undefined' ? 'undefined' : _typeof(current)) !== 'object' || (typeof next === 'undefined' ? 'undefined' : _typeof(next)) !== 'object') {
-        return -1;
-      }
+    menuItemConfigs.sort(function (current, next) {
       if (current.item.value < next.item.value) {
         return -1;
       }
@@ -476,21 +463,27 @@ var HlsQualitySelectorPlugin = function () {
       return 0;
     });
 
+    if (!this.config.enableAutoQuality && items.length > 0) {
+      menuItemConfigs[menuItemConfigs.length - 1].selected = true;
+    }
+
+    var menuItems = [];
+
+    for (var i = 0; i < menuItemConfigs.length; ++i) {
+      menuItems.push(this.getQualityMenuItem.call(this, menuItemConfigs[i]));
+    }
+
     if (this.config.enableAutoQuality) {
-      levelItems.push(this.getQualityMenuItem.call(this, {
+      menuItems.push(this.getQualityMenuItem.call(this, {
         label: player.localize('Auto'),
         value: 'auto',
         selected: true
       }));
     }
 
-    if (!this.config.enableAutoQuality && levelItems.length > 0) {
-      this.setQuality(levelItems[levelItems.length - 1].item.value);
-    }
-
     if (this._qualityButton) {
       this._qualityButton.createItems = function () {
-        return levelItems;
+        return menuItems;
       };
       this._qualityButton.update();
     }
@@ -569,10 +562,10 @@ var onPlayerReady = function onPlayerReady(player, options) {
  *           An object of options left to the plugin author to define.
  */
 var hlsQualitySelector = function hlsQualitySelector(options) {
-  var _this2 = this;
+  var _this = this;
 
   this.ready(function () {
-    onPlayerReady(_this2, videojs.mergeOptions(defaults, options));
+    onPlayerReady(_this, videojs.mergeOptions(defaults, options));
   });
 };
 
