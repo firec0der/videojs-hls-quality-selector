@@ -138,6 +138,7 @@ class HlsQualitySelectorPlugin {
 
     if (!this.config.enableAutoQuality && menuItemConfigs.length > 0) {
       menuItemConfigs[menuItemConfigs.length - 1].selected = true;
+      this.setQuality(menuItemConfigs[menuItemConfigs.length - 1].value);
     }
 
     const menuItems = [];
